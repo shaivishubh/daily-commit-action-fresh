@@ -1,0 +1,32 @@
+name: Daily Commit
+
+on:
+  workflow_dispatch:  # allows manual run
+  schedule:
+    - cron: '30 9 * * *'  # runs daily at 9:30 AM UTC
+
+jobs:
+  commit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Add a commit by 24f1000845@ds.study.iitm.ac.in
+        run: |
+          # Append a line to daily_commit.txt
+          echo "Daily commit $(date)" >> daily_commit.txt
+
+          # Configure git
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "24f1000845@ds.study.iitm.ac.in"
+
+          # Add file
+          git add daily_commit.txt
+
+          # Commit only if there are changes
+          git diff-index --quiet HEAD || git commit -m "Daily commit $(date)"
+
+          # Push using GitHub Actions token (avoids 403 error)
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} HEAD:main
